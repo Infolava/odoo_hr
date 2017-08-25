@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright:           ©  2017 Infolava GmbH  All rights reserved.
+ ================================================================================
+    This file is part of TransALM
+
+    TransALM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<openerp>
+    <data noupdate="1">
+        <record model="ir.ui.view" id="inherited_hr_contract_view_form">
+            <field name="name">inherited.hr_contract_view_form</field>
+            <field name="model">hr.contract</field>
+            <field name="type">form</field>
+            <field name="priority" eval="1" />
+            <field name="inherit_id" ref="hr_contract.hr_contract_view_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='type_id']" position='after'>
+                    <field name="state_id" />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>
