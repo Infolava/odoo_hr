@@ -27,10 +27,25 @@
 # Checked out Version:   $LastChangedRevision$
 # HeadURL:               $HeadURL$
 # --------------------------------------------------------------------------------
-from openerp import models, fields
+from openerp import models, fields, api
+from openerp.exceptions import MissingError
 
 class hr_contract(models.Model):
     _name = "hr.contract"
     _inherit = "hr.contract"
     
-    state_id =  fields.Many2one('res.country.state', 'state' )
+    state_id =  fields.Many2one('res.country.state', 'state')
+    
+    @api.onchange('state_id', 'date_start', 'date_end')
+    def onchange_state(self) :
+        if not self.date_start or not self.state_id :
+            return {}
+        year_start = fields.Date.from_string(self.date_start).year
+        year_end = fields.Date.from_string(self.date_end).year if self.date_end else year_start + 1
+        providers = self.env['calendar.provider'].search([])
+        if not providers :
+            raise MissingError(_("Please contact your administration to configure the calendar provider"))
+        self.env['hr.holidays.public'].import_public_holidays_by_country(providers[0], \
+                                                                         self.state_id.country_id, \
+                                                                         year_start, \
+                                                                         year_end)

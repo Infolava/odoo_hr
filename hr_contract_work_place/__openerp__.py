@@ -34,7 +34,8 @@
     'website': 'http://www.infolava.ch',
     'category' : 'Human Ressources Management',
     'depends' : ['hr_contract',
-                 'hr_public_holidays_event'
+                 'hr_public_holidays_event',
+                 'hr_holidays_public_import',
                  ],
     'demo_xml' : [],
     'summary': "Addon to manage employee's contracts by state",
