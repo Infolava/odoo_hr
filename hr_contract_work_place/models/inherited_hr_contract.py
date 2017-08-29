@@ -34,7 +34,7 @@ class hr_contract(models.Model):
     _name = "hr.contract"
     _inherit = "hr.contract"
     
-    state_id =  fields.Many2one('res.country.state', 'state')
+    state_id =  fields.Many2one('res.country.state', 'state', required = True)
     
     @api.onchange('state_id', 'date_start', 'date_end')
     def onchange_state(self) :
