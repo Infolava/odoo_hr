@@ -51,10 +51,20 @@ class hr_holidays_public(models.Model):
             pub_hol_count_lines_ids = [line.id for line in pub_hol_count.line_ids]
             pub_hol_country_line += self.env['hr.holidays.public.line'].search([('id', 'in',pub_hol_count_lines_ids), ('state_ids', '=', False), ('date', '>=', dt_from), ('date', '<=', dt_to)])
         return pub_hol_country_line
-        
+    
 class hr_holidays_public_line(models.Model):
     _name = "hr.holidays.public.line"
     _inherit = "hr.holidays.public.line"
+    
+    @api.multi
+    def _get_attendees(self, state_ids):
+        """
+        attendees are related partner for employees according to their contract state
+        """
+        contract_ids = self.env['hr.contract'].search([('state_id', 'in', [state_id.id for state_id in state_ids])])
+        employee_ids = self.env['hr.employee'].search([('contract_ids', 'in',[contract_id.id for contract_id in contract_ids])])
+        user_ids = self.env['res.users'].search([('employee_ids', 'in', [employee_id.id for employee_id in employee_ids])])
+        return self.env['res.partner'].search([('user_ids', 'in', [user_id.id for user_id in user_ids])])
     
     @api.model
     def create(self, values):
@@ -67,10 +77,18 @@ class hr_holidays_public_line(models.Model):
                     'name': values['name'] or _('Official Holiday'),
                     'duration': 24,
                     'state': 'open',
-                    'class': 'confidential'
+                    'class': 'confidential',
+                    'partner_ids' : [self._uid]
                 })
-        self.env['calendar.event'].create(meeting_vals)
-        return super(hr_holidays_public_line, self).create(values)
+        res = super(hr_holidays_public_line, self).create(values)
+        if values['state_ids'] is False :
+            state_ids = self.env['res.country.state'].search([('country_id', '=', res.year_id.country_id.id)])
+        for partner in self._get_attendees(state_ids) :
+            meeting_vals['partner_ids'] += [(4,partner.id)]
+                    
+        ctx_no_email = dict(self._context or {}, no_email=True)
+        self.env['calendar.event'].create(meeting_vals, context=ctx_no_email)
+        return res
     
     @api.multi
     def unlink(self):
