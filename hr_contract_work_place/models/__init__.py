@@ -27,4 +27,4 @@
 # Checked out Version:   $LastChangedRevision$
 # HeadURL:               $HeadURL$
 # --------------------------------------------------------------------------------
-import inherited_hr_contract, hr_employee_contract_state
+import inherited_hr_contract, inherited_hr_employee, inherited_hr_holidays_public

@@ -29,11 +29,12 @@
 # --------------------------------------------------------------------------------
 {
     'name' : 'Contract By state',
-    'version' : '0.0.0',
+    'version' : '2.0.0',
     'author' : 'Infolava',
     'website': 'http://www.infolava.ch',
     'category' : 'Human Ressources Management',
-    'depends' : ['hr_contract',
+    'depends' : [
+                 'hr_contract',
                  'hr_public_holidays_event',
                  'hr_holidays_public_import',
                  ],
@@ -41,8 +42,8 @@
     'summary': "Addon to manage employee's contracts by state",
     'data' : [
               'views/inherited_hr_contract_form_view.xml'
-                  ],
+              ],
     'active': False,
     'installable': True,
-    'application' : False,
+    'application' : True,
 }
