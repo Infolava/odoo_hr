@@ -29,8 +29,8 @@
 # --------------------------------------------------------------------------------
 
 from openerp import models, api, fields, _ 
-from datetime import datetime, timedelta
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DF
+
 
 class hr_holidays_public(models.Model):
     _name = "hr.holidays.public"
@@ -65,6 +65,6 @@ class hr_holidays_public(models.Model):
         country_id = self.env['res.country.state'].browse(state_id).country_id.id
         hol_lines = self.get_public_holidays_for_countries(dt_from, dt_to, country_id)
         return [line for line in hol_lines if (not line.state_ids or state_id in line.state_ids.ids)]
-    
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4
 #eof $Id$

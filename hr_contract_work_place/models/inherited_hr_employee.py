@@ -59,5 +59,11 @@ class hr_employee(models.Model):
                 hours += self._get_total_working_hours(dt_from)
             dt_from = dt_from + timedelta(days=1)
         return hours
-            
-        
+    
+    @api.multi
+    def _get_employees_countries(self):
+        employees_contracts = [employee.contract_ids for employee in self]
+        states = []
+        for employee_contracts in employees_contracts :
+            states += [contract.state_id for contract in employee_contracts if contract.state_id] 
+        return [state.country_id for state in states]
