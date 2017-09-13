@@ -29,7 +29,7 @@
 # --------------------------------------------------------------------------------
 {
     'name' : 'Official holidays In Calender Event',
-    'version' : '2.0.0',
+    'version' : '2.0.1',
     'author' : 'Infolava',
     'website': 'http://www.infolava.ch',
     'category' : 'Human Ressources Management',
