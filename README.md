@@ -1,4 +1,11 @@
-# odoo_hr
-Collection Odoo addons to manage Human Ressources contributed or sponsored from Infolava GmbH www.infolava.ch
-Master is an empty branch
-We create branches for each Odoo branch we support
+# Infolava/odoo_hr
+
+A collection of addons to extend the functionalities of official Odoo Human Resources contributed or sponsored by Infolava GmbH www.infolava.ch
+
+## NOTICE
+This master branch is intentionally empty.
+We create separate branches for each Odoo version we support.
+
+Please switch to the branch that matches the Odoo version you are interested in.
+
+Thanks for your feedback
