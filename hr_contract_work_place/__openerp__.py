@@ -35,13 +35,13 @@
     'category' : 'Human Ressources Management',
     'depends' : [
                  'hr_contract',
-                 'hr_public_holidays_event',
                  'hr_public_holidays',
                  ],
     'demo_xml' : [],
     'summary': "Addon to manage employee's contracts by state",
     'data' : [
-              'views/inherited_hr_contract_form_view.xml'
+              'views/inherited_hr_contract_form_view.xml',
+              'views/inherieted_hr_holidays_public.xml',
               ],
     'active': False,
     'installable': True,

@@ -34,7 +34,9 @@
     'website': 'http://www.infolava.ch',
     'category' : 'Human Ressources Management',
     'depends' : ['hr_public_holidays',
-                 'calendar'],
+                 'hr_contract_work_place',
+                 'calendar'
+                 ],
     'demo_xml' : [],
     'summary': 'Addon to display public holidays as event in odoo calender',
     'data' : [],

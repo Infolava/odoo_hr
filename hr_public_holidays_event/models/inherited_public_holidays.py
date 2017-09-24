@@ -27,7 +27,7 @@
 # Checked out Version:   $LastChangedRevision$
 # HeadURL:               $HeadURL$
 # --------------------------------------------------------------------------------
-from openerp import models, api, _ 
+from openerp import models, api, _, fields
 from datetime import datetime
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DF
     
@@ -35,59 +35,88 @@ class hr_holidays_public_line(models.Model):
     _name = "hr.holidays.public.line"
     _inherit = "hr.holidays.public.line"
     
-#     @api.multi
-#     def _get_attendees(self, state_ids):
-#         """
-#         attendees are related partner for employees according to their contract state
-#         """
-#         contract_ids = self.env['hr.contract'].search([('state_id', 'in', [state_id.id for state_id in state_ids])])
-#         employee_ids = self.env['hr.employee'].search([('contract_ids', 'in',[contract_id.id for contract_id in contract_ids])])
-#         user_ids = self.env['res.users'].search([('employee_ids', 'in', [employee_id.id for employee_id in employee_ids])])
-#         return self.env['res.partner'].search([('user_ids', 'in', [user_id.id for user_id in user_ids])])
-    
+    event_id = fields.Many2one('calendar.event', string = 'Related event', readonly = True, ondelete = 'cascade')
+
+    @api.multi
+    def update_holiday_event_attendees(self, state_ids):
+        for hol in self :
+            for st_id in state_ids :
+                contracts = self.env['hr.contract'].search([
+                                                            ('state_id', '=', st_id), \
+                                                            ('date_start', '<=', fields.Datetime.from_string(hol.date)), \
+                                                            '|',
+                                                            ('date_end', '=', False), \
+                                                            ('date_end', '>=', fields.Datetime.from_string(hol.date))])
+                hol.event_id.with_context(no_email = True).partner_ids = [[6, False, [contract.employee_id.user_id.partner_id.id for contract in contracts]]]
+        
+    @api.model
+    def update_event_attendees(self, state_ids):
+        for state_id in state_ids :
+            contracts = self.env['hr.contract'].search([('state_id', '=', state_id)])
+            holidays = self.env['hr.holidays.public'].get_public_holidays_for_state(state_id)
+            for hol in holidays :
+                hol.event_id.with_context(no_email = True).partner_ids = [[6, False, []]]
+            for contract in contracts :
+                holidays = self.env['hr.holidays.public'].get_public_holidays_for_state(contract.state_id.id, \
+                                                                                        fields.Datetime.from_string(contract.date_start), \
+                                                                                        fields.Datetime.from_string(contract.date_end) or False, \
+                                                                                        )
+                for hol in holidays :
+                    hol.event_id.with_context(no_email = True).partner_ids = [(4, contract.employee_id.user_id.partner_id.id)]
+            
     @api.model
     def create(self, values):
         meeting_vals = {}
-        if values.has_key('date') and  values['date'] is not False:
+        if values.has_key('date') and values['date'] is not False:
             meeting_vals.update({'start_date': values['date'], 'stop_date': values['date']})
             if type(values['date']) is datetime :
                 meeting_vals.update({'start_date': (values['date'].date()).strftime(DF), 'stop_date': (values['date'].date()).strftime(DF)})
+
         meeting_vals.update({
-                    'name': values['name'] or _('Official Holiday'),
-                    'duration': 24,
-                    'state': 'open',
-                    'class': 'confidential',
-                    'partner_ids' : [self._uid],
-                    'allday' : True,
-                })
-        res = super(hr_holidays_public_line, self).create(values)
-        if values['state_ids'] is False :
-            state_ids = self.env['res.country.state'].search([('country_id', '=', res.year_id.country_id.id)])
-#         for partner in self._get_attendees(state_ids) :
-#             meeting_vals['partner_ids'] += [(4,partner.id)]
-                    
-        ctx_no_email = dict(self._context or {}, no_email=True)
-        self.env['calendar.event'].create(meeting_vals, context=ctx_no_email)
-        return res
-    
+                             'name': values['name'] or _('Official Holiday'),
+                             'duration': 24,
+                             'state': 'open',
+                             'class': 'confidential',
+                             'allday' : True,
+                             'partner_ids' : [[6, False, []]]
+                             })
+        country = self.env['hr.holidays.public'].browse(values['year_id']).country_id
+        if not values.has_key('state_ids') or not values['state_ids'] or not values['state_ids'][0][2] :
+            state_ids = self.env['res.country.state'].search([('country_id', '=', country.id)]).ids
+        else :
+            state_ids = values['state_ids'][0][2]
+            
+        values['event_id'] = self.env['calendar.event'].with_context(no_email = True).create(meeting_vals).id
+        holiday = super(hr_holidays_public_line, self).create(values)
+        holiday.update_holiday_event_attendees(state_ids)
+        return holiday
+
     @api.multi
     def unlink(self):
-        related_event = self.env['calendar.event'].search([('name', "=", self.name), ('start_date', '=', self.date), ('stop_date', '=', self.date)])
-        res = super(hr_holidays_public_line, self).unlink()
-        related_event.unlink()
-        return res
+        for hol in self :
+            hol.event_id.with_context(no_email = True).unlink()
+        return super(hr_holidays_public_line, self).unlink()
     
     @api.multi
     def write(self, values):
-        related_event = self.env['calendar.event'].search([('name', "=", self.name), ('start_date', '=', self.date), ('stop_date', '=', self.date)])
+        related_event = self.env['calendar.event'].browse(self.event_id.ids)
+        res = super(hr_holidays_public_line, self).write(values)
         vals = {}
         if values.has_key('date') and  values['date'] is not False:
             vals.update({'start_date': values['date'], 'stop_date' : values['date']})
+            if type(values['date']) is datetime :
+                vals.update({'start_date': (values['date'].date()).strftime(DF), 'stop_date': (values['date'].date()).strftime(DF)})
         if values.has_key('name') and  values['name'] is not False :
             vals.update({'name': values['name']})
-        if self._uid !=  related_event.user_id :
+        if self._uid !=  related_event.user_id.id :
             vals.update({'user_id': self._uid})
-        related_event.write(vals)
-        return super(hr_holidays_public_line, self).write(values)
-        
-         
+        for hol in self :
+            hol.event_id.with_context(no_email = True).write(vals)
+            
+            if values.has_key('state_ids') :
+                if not values['state_ids'] or not values['state_ids'][0][2]:
+                    state_ids = self.env['res.country.state'].search([('country_id', '=', hol.year_id.country_id.id)]).ids
+                else :
+                    state_ids = values['state_ids'][0][2]
+                self.update_holiday_event_attendees(state_ids)
+        return res

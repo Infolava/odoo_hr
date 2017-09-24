@@ -39,7 +39,7 @@ class hr_employee(models.Model):
     def _get_official_holidays_by_contracts(self, dt_st, dt_end):
         public_hol = []
         for contract in self.contract_ids:
-            public_hol += self.env['hr.holidays.public'].get_public_holidays_for_state(dt_st, dt_end, contract.state_id.id)
+            public_hol += self.env['hr.holidays.public'].get_public_holidays_for_state(contract.state_id.id, dt_st, dt_end)
         return public_hol
         
     @api.multi
