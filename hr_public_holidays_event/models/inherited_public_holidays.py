@@ -99,7 +99,6 @@ class hr_holidays_public_line(models.Model):
     
     @api.multi
     def write(self, values):
-        related_event = self.env['calendar.event'].browse(self.event_id.ids)
         res = super(hr_holidays_public_line, self).write(values)
         vals = {}
         if values.has_key('date') and  values['date'] is not False:
@@ -108,11 +107,8 @@ class hr_holidays_public_line(models.Model):
                 vals.update({'start_date': (values['date'].date()).strftime(DF), 'stop_date': (values['date'].date()).strftime(DF)})
         if values.has_key('name') and  values['name'] is not False :
             vals.update({'name': values['name']})
-        if self._uid !=  related_event.user_id.id :
-            vals.update({'user_id': self._uid})
         for hol in self :
             hol.event_id.with_context(no_email = True).write(vals)
-            
             if values.has_key('state_ids') :
                 if not values['state_ids'] or not values['state_ids'][0][2]:
                     state_ids = self.env['res.country.state'].search([('country_id', '=', hol.year_id.country_id.id)]).ids
