@@ -27,7 +27,7 @@
             <field name="inherit_id" ref="hr_public_holidays.view_public_holidays_form" />
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='variable']" position='before'>
-                    <field name="payeable" />
+                    <field name="paid" />
                 </xpath>
             </field>
         </record>

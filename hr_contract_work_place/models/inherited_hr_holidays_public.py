@@ -78,6 +78,6 @@ class hr_holidays_public_line(models.Model):
     _name = "hr.holidays.public.line"
     _inherit = "hr.holidays.public.line"
     
-    payeable = fields.Boolean('Payeable', default = True)
+    paid = fields.Boolean('Paid', default = True)
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4
 #eof $Id$
