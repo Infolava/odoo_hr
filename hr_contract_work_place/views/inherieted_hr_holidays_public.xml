@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <openerp>
-    <data noupdate="1">
+    <data>
         <record model="ir.ui.view" id="inherited_hr_holidays_public_view">
             <field name="name">inherited.hr_holidays.public</field>
             <field name="model">hr.holidays.public</field>

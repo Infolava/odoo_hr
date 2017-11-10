@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <openerp>
-    <data noupdate="1">
+    <data>
         <record model="ir.ui.view" id="inherited_hr_contract_view_form">
             <field name="name">inherited.hr_contract_view_form</field>
             <field name="model">hr.contract</field>
