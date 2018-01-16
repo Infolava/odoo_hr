@@ -56,9 +56,9 @@ class hr_holidays_public(models.Model):
             result += [line for line in hol.line_ids \
                        if (not dt_from) \
                        or \
-                       (dt_from  and fields.Datetime.from_string(line.date) >= dt_from) \
+                       (dt_from  and fields.Date.from_string(line.date) >= dt_from) \
                         or \
-                        (dt_to and fields.Datetime.from_string(line.date) <= dt_to)]
+                        (dt_to and fields.Date.from_string(line.date) <= dt_to)]
         return result
     
     @api.multi

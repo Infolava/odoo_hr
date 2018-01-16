@@ -46,15 +46,14 @@ class hr_employee(models.Model):
     def _compute_public_holidays(self, dt_from, dt_until): 
         """
             compute total working hours of public holidays
-            @param dt_from: datetime, starting date
-            @param dt_from: datetime, ending date
+            @param dt_from: date, starting date
+            @param dt_from: date, ending date
             @return: float
         """
         hours = 0.0
         off_hol_dates = [pub_hol.date for pub_hol in self._get_official_holidays_by_contracts(dt_from, dt_until)]
         while dt_from <= dt_until:
-            date_from = dt_from.date()
-            date_from = date_from.strftime(DF)
+            date_from = dt_from.strftime(DF)
             if date_from in off_hol_dates :
                 hours += self._get_total_working_hours(dt_from)
             dt_from = dt_from + timedelta(days=1)
